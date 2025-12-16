@@ -17,7 +17,7 @@ function login(event) {
         .then(response => response.json())
         .then(data => {
             console.log(data);
-            localStorage.setItem('user', JSON.stringify(data));
+            localStorage.setItem('user', JSON.stringify(data.user));
             console.log(data);
             if (data.user.role === 'admin') {
                 window.location.href = '/html/pizza_manager.html';

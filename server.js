@@ -12,6 +12,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '/'))); // Serve static files from root
 
 const USERS_FILE = path.join(__dirname, 'data', 'users.json');
+const PIZZAS_FILE = path.join(__dirname, 'data', 'pizzas.json');
 
 // Helper to read users
 const readUsers = () => {
@@ -26,6 +27,7 @@ const readUsers = () => {
         return [];
     }
 };
+
 
 // Helper to write users
 const writeUsers = (users) => {
@@ -50,11 +52,13 @@ app.post('/api/login', (req, res) => {
     }
 });
 
+
 // API: Get all users (for debugging/admin)
 app.get('/api/users', (req, res) => {
     const users = readUsers();
     res.json(users);
 });
+
 
 // API: Signup (Create new user)
 app.post('/api/signup', (req, res) => {
@@ -83,6 +87,81 @@ app.post('/api/signup', (req, res) => {
         res.status(500).json({ message: 'Failed to save user' });
     }
 });
+
+
+
+// PIZZA API 
+function readPizzas() {
+    try {
+        if (!fs.existsSync(PIZZAS_FILE)) {
+            return [];
+        }
+        const data = fs.readFileSync(PIZZAS_FILE, 'utf8');
+        return JSON.parse(data);
+    } catch (err) {
+        console.error("Error reading pizzas file:", err);
+        return [];
+    }
+}
+
+
+function writePizzas(pizzas) {
+    try {
+        fs.writeFileSync(PIZZAS_FILE, JSON.stringify(pizzas, null, 2));
+        return true;
+    } catch (err) {
+        console.error("Error writing pizzas file:", err);
+        return false;
+    }
+}
+
+
+app.post('/api/pizzas', (req, res) => {
+    const newPizza = req.body;
+
+    // Basic validation
+    if (!newPizza.name || !newPizza.description || !newPizza.price) {
+        return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    const pizzas = readPizzas();
+    // Check if name already exists
+    if (pizzas.find(p => p.name === newPizza.name)) {
+        return res.status(409).json({ message: 'Name already exists' });
+    }
+    // Add new pizza
+    newPizza.id = pizzas.length > 0 ? Math.max(...pizzas.map(p => p.id)) + 1 : 1;
+    pizzas.push(newPizza);
+
+    if (writePizzas(pizzas)) {
+        res.status(201).json({ message: 'Pizza created successfully', pizza: newPizza });
+    } else {
+        res.status(500).json({ message: 'Failed to save pizza' });
+    }
+})
+
+
+app.get('/api/pizzas', (req, res) => {
+    const pizzas = readPizzas();
+    res.json(pizzas);
+})
+
+
+app.delete('/api/pizzas/:id', (req, res) => {
+    const pizzas = readPizzas();
+    const id = req.params.id;
+    const index = pizzas.findIndex(p => p.id === id);
+    if (index === -1) {
+        return res.status(404).json({ message: 'Pizza not found' });
+    }
+    pizzas.splice(index, 1);
+    if (writePizzas(pizzas)) {
+        res.status(200).json({ message: 'Pizza deleted successfully' });
+    } else {
+        res.status(500).json({ message: 'Failed to delete pizza' });
+    }
+})
+
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);

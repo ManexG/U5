@@ -16,8 +16,32 @@
     </header>
     <main class="container">
         <section>
+            <h1>Administrador</h1>
 
-
+            <h2>Crear Pizza</h2>
+            <form>
+                <label for="name">Nombre</label>
+                <input type="text" id="name" name="name">
+                <label for="description">Descripción</label>
+                <input type="text" id="description" name="description">
+                <label for="price">Precio</label>
+                <input type="number" id="price" name="price">
+                <button type="submit">Crear</button>
+            </form>
+        </section>
+        <section>
+            <table id="pizza-table">
+                <thead id="pizza-head">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Precio</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="pizza-body">
+                </tbody>
+            </table>
         </section>
     </main>
     <footer class="footer">
