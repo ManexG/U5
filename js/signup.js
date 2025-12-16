@@ -26,7 +26,7 @@ async function signup(event) {
     };
 
     try {
-        const response = await fetch('http://localhost:3000/api/signup', {
+        const response = await fetch('http://localhost:3001/api/signup', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -39,6 +39,7 @@ async function signup(event) {
         if (response.ok) {
             alert('Signup successful!');
             console.log(data);
+            localStorage.setItem('user', JSON.stringify(data.user));
         } else {
             alert('Error: ' + data.message);
         }

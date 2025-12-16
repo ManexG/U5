@@ -4,7 +4,7 @@ const password = document.getElementById('password');
 function login(event) {
     event.preventDefault();
 
-    fetch('http://localhost:3000/api/login', {
+    fetch('http://localhost:3001/api/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
