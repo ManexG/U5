@@ -2,8 +2,13 @@
 const pizzaContainer = document.getElementById('pizza-options');
 const sizeContainer = document.getElementById('size-options');
 const ingredientsContainer = document.getElementById('ingredients-options');
-const totalCostElement = document.getElementById('total-cost');
+const currentPriceElement = document.getElementById('current-price');
 const orderForm = document.getElementById('order-form');
+
+// Cart Elements
+const cartContainer = document.getElementById('cart-items');
+const cartTotalElement = document.getElementById('cart-total');
+const btnFinishOrder = document.getElementById('btn-finish-order');
 
 const sizes = [
     { name: 'Individual', priceMultiplier: 1.0 },
@@ -24,14 +29,14 @@ const ingredients = [
 ];
 
 let pizzas = [];
+let cart = []; // Array to store added pizzas
 
 async function init() {
     try {
+        // Autofill user info if available
         const userStr = localStorage.getItem('user');
-        console.log(userStr);
         if (userStr) {
             const user = JSON.parse(userStr);
-            console.log(user);
             if (user.name) document.getElementById('name').value = user.name;
             if (user.email) document.getElementById('email').value = user.email;
         }
@@ -44,7 +49,11 @@ async function init() {
         renderSizes();
         renderIngredients();
 
-        orderForm.addEventListener('change', calculateTotal);
+        // Add event listeners for realtime calculation
+        orderForm.addEventListener('change', calculateCurrentPrice);
+
+        // Finish Order Button
+        btnFinishOrder.addEventListener('click', finishOrder);
 
     } catch (error) {
         console.error('Error loading pizzas:', error);
@@ -98,7 +107,7 @@ function renderIngredients() {
     });
 }
 
-function calculateTotal() {
+function calculateCurrentPrice() {
     let total = 0;
 
     // Get selected pizza base price
@@ -121,40 +130,109 @@ function calculateTotal() {
         });
     }
 
-    totalCostElement.textContent = `$${total.toFixed(2)}`;
+    currentPriceElement.textContent = `$${total.toFixed(2)}`;
     return total;
 }
 
+// Add to Cart Handler
 orderForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
     const formData = new FormData(orderForm);
-
     const selectedPizzaId = formData.get('pizza');
-    const selectedPizza = pizzas.find(p => p.id == selectedPizzaId);
+    const selectedPizzaOriginal = pizzas.find(p => p.id == selectedPizzaId);
 
-    const order = {
-        customer: {
-            name: formData.get('name'),
-            email: formData.get('email'),
-            phone: formData.get('phone'),
-            address: formData.get('address')
-        },
-        order: {
-            pizza: selectedPizza ? selectedPizza.name : 'Unknown',
-            size: formData.get('size'),
-            ingredients: formData.getAll('ingredients'),
-            total: calculateTotal()
-        },
+    if (!selectedPizzaOriginal) return;
+
+    const currentPrice = calculateCurrentPrice();
+
+    const pizzaItem = {
+        name: selectedPizzaOriginal.name,
+        size: formData.get('size'),
+        ingredients: formData.getAll('ingredients'),
+        price: currentPrice
+    };
+
+    cart.push(pizzaItem);
+    renderCart();
+    // Optional: Reset ingredients or keep settings? Keeping current selection is often better for ordering similar pizzas.
+});
+
+function renderCart() {
+    cartContainer.innerHTML = '';
+    let cartTotal = 0;
+
+    if (cart.length === 0) {
+        cartContainer.innerHTML = '<p class="empty-cart">Tu orden esta vacia</p>';
+        btnFinishOrder.disabled = true;
+    } else {
+        btnFinishOrder.disabled = false;
+
+        cart.forEach((item, index) => {
+            cartTotal += item.price;
+
+            const itemElement = document.createElement('div');
+            itemElement.className = 'cart-item';
+            itemElement.innerHTML = `
+                <div class="cart-item-details">
+                    <h4>${item.name} (${item.size})</h4>
+                    <p>${item.ingredients.length > 0 ? item.ingredients.join(', ') : 'Sin ingredientes extra'}</p>
+                </div>
+                <div class="cart-item-actions">
+                    <span class="cart-item-price">$${item.price.toFixed(2)}</span>
+                    <button type="button" class="btn-remove" onclick="removeFromCart(${index})">Eliminar</button>
+                </div>
+            `;
+            cartContainer.appendChild(itemElement);
+        });
+    }
+
+    cartTotalElement.textContent = `$${cartTotal.toFixed(2)}`;
+}
+
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    renderCart();
+}
+
+// Expose to window for onclick handler in HTML
+window.removeFromCart = removeFromCart;
+
+function finishOrder() {
+    if (cart.length === 0) return;
+
+    const customerData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        address: document.getElementById('address').value
+    };
+
+    if (!customerData.name || !customerData.email || !customerData.phone || !customerData.address) {
+        alert('Por favor completa la informacion del cliente');
+        return;
+    }
+
+    const fullOrder = {
+        customer: customerData,
+        items: cart,
+        total: cart.reduce((sum, item) => sum + item.price, 0),
         date: new Date().toISOString()
     };
 
-    console.log('Order created:', order);
-    alert('Orden creada exitosamente! (Simulada)\nCheca la consola para ver el JSON.');
+    console.log('Final Order:', fullOrder);
 
-    // In a real app, we would POST this to a server
-    // For now we just log it as requested
-});
+    // Simulate updating unique_pizzas.json (the cart items) and orders.json (the full order)
+    console.log('Sending to orders.json and unique_pizzas.json...');
+
+    alert('Pedido realizado con exito! (Simulado)');
+
+    // Clear cart and form
+    cart = [];
+    renderCart();
+    orderForm.reset();
+    calculateCurrentPrice(); // Reset price display
+}
 
 // Initialize on load
 document.addEventListener('DOMContentLoaded', init);
