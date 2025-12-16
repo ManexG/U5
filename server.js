@@ -38,6 +38,18 @@ const writeUsers = (users) => {
     }
 };
 
+
+app.post('/api/login', (req, res) => {
+    const { email, password } = req.body;
+    const users = readUsers();
+    const user = users.find(u => u.email === email && u.password === password);
+    if (user) {
+        res.json({ message: 'Login successful', user });
+    } else {
+        res.status(401).json({ message: 'Invalid credentials' });
+    }
+});
+
 // API: Get all users (for debugging/admin)
 app.get('/api/users', (req, res) => {
     const users = readUsers();

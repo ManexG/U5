@@ -1,12 +1,13 @@
 const name = document.getElementById('name');
 const email = document.getElementById('email');
-let role = "client";
 const password = document.getElementById('password');
+let role = "client";
 
 const toggleAdmin = document.getElementById('toggle-admin');
 const toggleClient = document.getElementById('toggle-client');
 
-async function signup() {
+async function signup(event) {
+    event.preventDefault();
     if (name.value === '' || email.value === '' || role.value === '' || password.value === '') {
         alert('All fields are required');
         return;
@@ -59,11 +60,4 @@ function onToggleRole(event) {
         toggleClient.classList.add('active');
         toggleAdmin.classList.remove('active');
     }
-    // const role = document.getElementById('role');
-    // const roleValue = role.value;
-    // if (roleValue === 'client') {
-    //     role.value = 'admin';
-    // } else {
-    //     role.value = 'client';
-    // }
 }
