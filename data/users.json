@@ -5,5 +5,12 @@
     "role": "client",
     "password": "123",
     "id": "1765858781288"
+  },
+  {
+    "name": "Alexis",
+    "email": "manexcool2812@gmail.com",
+    "role": "client",
+    "password": "123456",
+    "id": "1765860865360"
   }
 ]
