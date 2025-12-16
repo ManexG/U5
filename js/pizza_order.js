@@ -25,7 +25,12 @@ const ingredients = [
     { name: 'Peperoni Extra', price: 25 },
     { name: 'Aceitunas', price: 15 },
     { name: 'Pimientos', price: 15 },
-    { name: 'Cebolla', price: 10 }
+    { name: 'Cebolla', price: 10 },
+    { name: 'Anchoas', price: 20 },
+    { name: 'Chorizo', price: 25 },
+    { name: 'Salami', price: 25 },
+    { name: 'Jamón', price: 25 },
+    { name: 'Pimientos', price: 15 }
 ];
 
 let pizzas = [];
