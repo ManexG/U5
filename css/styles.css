@@ -2,7 +2,7 @@
 body {
     margin: 0;
     padding: 0;
-    font-family: sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     /* Add padding to top and bottom to prevent content being hidden behind fixed elements */
     padding-top: 60px;
     padding-bottom: 60px;
