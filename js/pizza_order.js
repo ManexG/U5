@@ -27,6 +27,15 @@ let pizzas = [];
 
 async function init() {
     try {
+        const userStr = localStorage.getItem('user');
+        console.log(userStr);
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            console.log(user);
+            if (user.name) document.getElementById('name').value = user.name;
+            if (user.email) document.getElementById('email').value = user.email;
+        }
+
         const response = await fetch('../data/pizzas.json');
         const data = await response.json();
         pizzas = data.pizzas;
@@ -35,7 +44,6 @@ async function init() {
         renderSizes();
         renderIngredients();
 
-        // Add event listeners for realtime calculation
         orderForm.addEventListener('change', calculateTotal);
 
     } catch (error) {
